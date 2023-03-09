@@ -1,9 +1,10 @@
 package com.example.apicalling
 
-import androidx.appcompat.app.AppCompatActivity
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
-import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.apicalling.databinding.ActivityMainBinding
@@ -13,7 +14,8 @@ import com.example.apicalling.repository.ItemRepository
 import com.example.apicalling.utils.viewBinding
 import com.example.apicalling.viewModel.ItemViewModel
 import com.example.apicalling.viewModel.ItemViewModelFactory
-import kotlinx.coroutines.flow.collect
+import org.json.JSONObject
+import retrofit2.HttpException
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,12 +34,19 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        itemViewModel.getFlowerList("2")
+        itemViewModel.getFlowerList(binding.etNo.text.toString())
+
+        binding.refresh.setOnClickListener {
+            itemViewModel.getFlowerList(binding.etNo.text.toString())
+        }
+
+
 
         collect()
 
     }
 
+    @SuppressLint("SetTextI18n")
     private fun collect() {
         lifecycleScope.launchWhenCreated {
 
@@ -53,13 +62,40 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     is ApiState.Failure -> {
-                        binding.textview.text = it.e.message
-                        Toast.makeText(this@MainActivity, "Faild  -> ${it.e.localizedMessage}", Toast.LENGTH_SHORT).show()
+
+                        if (it.e is HttpException && (it.e.code() == 400 || it.e.code()==404|| it.e.code()==500)){
+
+                            val responseBody = it.e.response()?.errorBody()?.string()
+                            val jsonObject = responseBody?.trim() ?.let { it1 -> JSONObject(it1) }
+
+                            val message = jsonObject?.getString("message")
+                            binding.textview.text = message
+
+                        }
+
+
+
+                        /* val exception = it.e as HttpException
+                         if (exception.response()!=null) {
+                             when (exception.code()) {
+                                 401 -> {
+                                     binding.textview.text = exception.response()?.raw()?.code.toString() + "  -> "+exception.response()?.raw()?.message.toString()
+                                 }
+                                 500 -> {
+                                     binding.textview.text = exception.response()?.code().toString() +"   - > "+exception.response()?.message().toString()
+                                     binding.textview.text = exception.response()?.code().toString() +"   - > "+exception.response().errorBody()
+                                 }
+                                 else -> {
+                                     Toast.makeText(this@MainActivity, "Something worng", Toast.LENGTH_SHORT).show()
+                                 }
+                             }
+                         }*/
+
                     }
+
 
                     is ApiState.Empty ->{
                         binding.textview.text = it.toString() // this code
-                        Toast.makeText(this@MainActivity, "Empaty $it", Toast.LENGTH_SHORT).show()
                     }
 
                 }
