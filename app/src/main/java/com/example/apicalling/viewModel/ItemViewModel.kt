@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
-class ItemViewModel(private var itemRepository: ItemRepository): ViewModel() {
+class ItemViewModel(private var itemRepository: ItemRepository) : ViewModel() {
 
     /**
      * Instead of using live data using flow
@@ -16,15 +16,17 @@ class ItemViewModel(private var itemRepository: ItemRepository): ViewModel() {
     val wMessage: MutableStateFlow<ApiState> = MutableStateFlow(ApiState.Empty)
 
     fun getFlowerList(option: String) = viewModelScope.launch {
+
         wMessage.value = ApiState.Loading
+
         itemRepository.getFlowerList(option)
-            .catch { e ->
-                wMessage.value = ApiState.Failure(e)
-            }.collect { data ->
+            .catch {
+                    e -> wMessage.value = ApiState.Failure(e)
+            }
+            .collect { data ->
                 wMessage.value = ApiState.Success(data)
             }
     }
-
 
 
 }
