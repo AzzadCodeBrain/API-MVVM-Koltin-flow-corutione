@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     is ApiState.Empty ->{
-                        binding.textview.text = it.toString()
+                        binding.textview.text = it.toString() // this code
                         Toast.makeText(this@MainActivity, "Empaty $it", Toast.LENGTH_SHORT).show()
                     }
 
