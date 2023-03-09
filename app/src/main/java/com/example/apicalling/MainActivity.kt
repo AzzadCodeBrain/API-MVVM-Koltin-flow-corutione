@@ -15,19 +15,20 @@ import kotlinx.coroutines.flow.collect
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var itemViewModel: ItemViewModel /*by viewModels()*/
 
+    private var result: ItemsModel? = null
+
+    private val itemViewModel: ItemViewModel by lazy {
+        ViewModelProvider(this, ItemViewModelFactory(ItemRepository()))[ItemViewModel::class.java]
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        itemViewModel = ViewModelProvider(this, ItemViewModelFactory(ItemRepository()))[ItemViewModel::class.java]
-
 
         itemViewModel.getFlowerList("2")
 
-        //collect
         collect()
 
     }
@@ -47,11 +48,11 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     is ApiState.Failure -> {
-                        Toast.makeText(this@MainActivity, "Faild", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "Faild$it", Toast.LENGTH_SHORT).show()
                     }
 
                     is ApiState.Empty ->{
-                        Toast.makeText(this@MainActivity, "Empaty ", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@MainActivity, "Empaty $it", Toast.LENGTH_SHORT).show()
                     }
 
                 }
