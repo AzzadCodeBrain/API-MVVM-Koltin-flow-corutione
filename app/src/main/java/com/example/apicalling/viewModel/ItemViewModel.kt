@@ -26,25 +26,10 @@ class ItemViewModel(private var itemRepository: ItemRepository) : ViewModel() {
         wMessage.value = ApiState.Loading
 
         itemRepository.getFlowerList(option)
-            .catch { e -> wMessage.value = ApiState.Failure(e)
-
-            }
+            .catch {  e -> wMessage.value = ApiState.Failure(e) }
             .collect { data ->
                 wMessage.value = ApiState.Success(data)
             }
     }
-   /* private fun getErrorMessageFromGenericResponse(httpException: HttpException): String? {
-        var errorMessage: String? = null
-        try {
-            val body = httpException.response()?.errorBody()
-            val adapter = Gson().getAdapter(GenericResponse::class.java)
-            val errorParser = adapter.fromJson(body?.string())
-            errorMessage = errorParser.errorMessage?.get(0)
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } finally {
-            return errorMessage
-        }
-    }*/
 
 }
